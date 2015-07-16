@@ -1,0 +1,28 @@
+[
+  {
+    "dept": [
+      [
+        1969,
+        2,
+        "http://scholarworks.montana.edu/xmlui/handle/1/733/discover?filtertype_1=dateIssued&filter_relational_operator_1=equals&filter_1=1969&filtertype_2=department&filter_relational_operator_2=equals&filter_2=Aerospace+and+Mechanical+Engineering."
+      ],
+      [
+        1972,
+        3,
+        "http://scholarworks.montana.edu/xmlui/handle/1/733/discover?filtertype_1=dateIssued&filter_relational_operator_1=equals&filter_1=1972&filtertype_2=department&filter_relational_operator_2=equals&filter_2=Aerospace+and+Mechanical+Engineering."
+      ],
+      [
+        1971,
+        3,
+        "http://scholarworks.montana.edu/xmlui/handle/1/733/discover?filtertype_1=dateIssued&filter_relational_operator_1=equals&filter_1=1971&filtertype_2=department&filter_relational_operator_2=equals&filter_2=Aerospace+and+Mechanical+Engineering."
+      ],
+      [
+        1970,
+        6,
+        "http://scholarworks.montana.edu/xmlui/handle/1/733/discover?filtertype_1=dateIssued&filter_relational_operator_1=equals&filter_1=1970&filtertype_2=department&filter_relational_operator_2=equals&filter_2=Aerospace+and+Mechanical+Engineering."
+      ]
+    ],
+    "college": "Engineering",
+    "name": "Aerospace and Mechanical Engineering."
+  },
+]
