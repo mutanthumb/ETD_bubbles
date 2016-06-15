@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>D3: Vertical axis added</title>
+		<script type="text/javascript" src="../d3.min.js"></script>
+		<style type="text/css">
+
+			.axis path,
+			.axis line {
+				fill: none;
+				stroke: black;
+				shape-rendering: crispEdges;
+			}
+
+			.axis text {
+				font-family: sans-serif;
+				font-size: 11px;
+			}
+      rect {
+        fill: white;
+      }
+			div.tooltip {
+			    position: absolute;
+			    text-align: center;
+			    width: 40px;
+			    height: 28px;
+			    padding: 2px;
+			    font: 12px sans-serif;
+			    background: lightsteelblue;
+			    border: 0px;
+			    border-radius: 8px;
+
+			}
+
+		</style>
+	</head>
+	<body>
+		<script type="text/javascript">
+
+//var dotdata = [];
+    d3.tsv("../etds.tsv", function(dataset) {
+            var deptYearCount = d3.nest()
+              //.key(function(d) { return d.college;} )
+              .key(function(d) { return d.dept})
+              .key(function(d) { return d.year })
+              .rollup(function(leaves) { return leaves.length;})
+                  .map(dataset);
+
+                  //console.log(dataset);
+			//Width and height
+      var margin = {top: 20, right: 20, bottom: 30, left: 230};
+			var width = 1200;
+			var height = 800;
+      var w= width - margin.left - margin.right;
+      var h = height - margin.top - margin.bottom;
+		//	var padding = 50;
+
+		var deptlistUnsorted = d3.map(dataset, function(d) {
+			return d.dept;
+		}).keys();
+
+		var deptlist = deptlistUnsorted.sort(d3.descending);
+
+		var c = d3.scale.category10();
+
+		// Define the div for the tooltip
+		var div = d3.select("body").append("div")
+    		.attr("class", "tooltip")
+    		.style("opacity", 0);
+
+      var years = [];  // for x-axis
+
+
+
+ var buildURL = function(d) {
+			var urlYear1 = "http://scholarworks.montana.edu/xmlui/handle/1/733/discover?filtertype_1=dateIssued&filter_relational_operator_1=equals&filter_1=";
+			var urlYear2 = "&filtertype_2=department&filter_relational_operator_2=equals&filter_2=";
+			console.log(d.dept);
+				if (d.dept.match(/&/g)) {
+					var dept = d.dept.replace(/ /g,"+");
+					var dept = d.dept.replace(/&/g,"%26");
+					var url =  urlYear1 + +d.year + urlYear2 + dept;
+					console.log(dept, url);
+					//return url;
+				} else if (d.dept.match(/\s/g)) {
+						var dept = d.dept.replace(/ /g,"+");
+						var url =  urlYear1 + +d.year + urlYear2 + dept;
+						console.log(dept, url);
+						//return url;
+					} else {
+						var url =  urlYear1 + +d.year + urlYear2 + d.dept;
+						console.log(dept, url);
+						//return url;
+					}
+ return url;
+ };
+
+
+ 	//var url = buildURL();
+	//	console.log(url);
+			//Create scale functions
+			var xScale = d3.scale.linear()
+								 .domain([1900, 2017])
+								 .range([0, w]);
+
+			var yScale = d3.scale.linear()
+								 .domain([-1, (deptlist.length)])
+								 .range([h, 0]);
+
+			var rScale = d3.scale.linear()
+									.domain([0, d3.max(dataset, function(d) {
+										return Object.keys(deptYearCount[d.dept]).length;})])
+					 				.range([2, 7]);
+
+			//Define X axis
+			var xAxis = d3.svg.axis()
+							  .scale(xScale)
+							  .orient("bottom")
+                .tickFormat(function(d) {
+                    //console.log(d);
+                    return d;
+                  });
+
+			//Define Y axis
+			var yAxis = d3.svg.axis()
+							  .scale(yScale)
+							  .orient("left")
+								.tickSize(0)
+								//.style('fill', '#C61C6F')
+								//.style("fill", function(d) { return c((d.dept ? d : d.parent).college); })
+                .tickFormat(function(d) {
+                    return deptlist[d];
+                  })
+                .ticks(deptlist.length - 1);
+
+
+      var zoom = d3.behavior.zoom()
+              .x(xScale)
+              .y(yScale)
+              .scaleExtent([1, 10])
+              .on("zoom", zoomed);
+
+			//Create SVG element
+			var svg = d3.select("body").append("svg")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+            .call(zoom);
+
+      svg.append("clipPath")
+          .attr("id", "clip")
+        .append("rect")
+          .attr("width", w)
+          .attr("height", h);
+
+      svg.append("rect")
+      .attr("width", w)
+      .attr("height", h);
+
+			//Create circles
+			svg.selectAll("dot")
+			   .data(dataset)
+			   .enter()
+			   .append("circle")
+         .attr("class", "dot")
+         //.style('fill', '#C61C6F')
+				 //.style("fill", function(d) { return d.c = c(deptYearCount[d.college]); })
+				 .style("fill", function(d) { return c((d.dept ? d : d.parent).college); })
+				 .attr("r", function(d) {
+					 //console.log(Object.keys(deptYearCount[d.dept]).length);
+					 return rScale(deptYearCount[d.dept][d.year]);})
+				//.attr("r", function(d) {return Object.keys(deptYearCount[d.dept]).length*1.5;})
+         //.attr('r', 2)
+         .attr('cx', function(d) {
+           //console.log(+d.year);
+             return xScale(+d.year);
+         })
+         .attr('cy', function(d) {
+         //console.log(d.dept, deptlist.indexOf(d.dept));
+              return yScale(deptlist.indexOf(d.dept));
+        })
+				.on("mouseover", function(d) {
+					console.log(deptYearCount[d.dept][d.year]);
+						div.transition()
+								.duration(200)
+								.style("opacity", .9);
+						div .html("<a href="+ buildURL(d) +">" + deptYearCount[d.dept][d.year] +"</a>")
+								.style("left", (d3.event.pageX) + "px")
+								.style("top", (d3.event.pageY - 28) + "px");
+
+							})
+
+				.on("mouseout", function(d) {
+						div.transition()
+								.duration(500)
+								.style("opacity", 0);
+							})
+         .attr("clip-path", "url(#clip)");
+
+
+                 svg.append("g")
+                     .attr("class", "y axis")
+                     .call(yAxis);
+
+                 svg.append("g")
+                     .attr("class", "x axis")
+                     .attr("transform", "translate(0," + h + ")")
+                     .call(xAxis);
+
+
+
+
+function zoomed() {
+  //console.log("zooming");
+  svg.selectAll(".dot") // <---- select all circles with class "dot"
+        .attr("cx", function(d) { return xScale(+d.year); })
+        .attr("cy", function(d) { return yScale(deptlist.indexOf(d.dept)); })
+				.attr('r', function(d) {
+	return 120 / (xScale.domain()[1] - xScale.domain()[0]);
+});
+  svg.select(".x.axis").call(xAxis);
+  svg.select(".y.axis").call(yAxis);
+}
+
+});
+		</script>
+	</body>
+</html>
