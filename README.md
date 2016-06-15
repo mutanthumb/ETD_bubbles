@@ -16,5 +16,9 @@ End result of the project: http://www.lib.montana.edu/~susan/etd_bubbles.html
 
 My plan is to improve the js within the HTML file to do the csv to nested json internally to eliminate a step. Other improvements will be to streamline the export and data munging process as well.
 
+-----
+June 2016 update:
+This project has been updated to use the same tsv file as the sunburst and includes D3 zoom and pan functionality.
+
 Please feel free to contact me with any questions.
 
